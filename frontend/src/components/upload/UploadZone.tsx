@@ -8,7 +8,11 @@ import { UploadCloud, FileType, CheckCircle } from "lucide-react";
 export const UploadZone = ({ onUpload }: { onUpload: (file: File) => void }) => {
   const [file, setFile] = useState<File | null>(null);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback((acceptedFiles: File[], fileRejections: any[]) => {
+    if (fileRejections.length > 0) {
+      alert("Invalid file type. Please upload a .png, .jpg, .jpeg, .pdf, .docx, or .txt file.");
+      return;
+    }
     if (acceptedFiles.length > 0) {
       setFile(acceptedFiles[0]);
       // Trigger ripple/success animation, then call onUpload
@@ -22,7 +26,8 @@ export const UploadZone = ({ onUpload }: { onUpload: (file: File) => void }) => 
     onDrop,
     maxFiles: 1,
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg'],
+      'image/png': ['.png'],
+      'image/jpeg': ['.jpg', '.jpeg'],
       'application/pdf': ['.pdf'],
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
       'text/plain': ['.txt']
