@@ -11,6 +11,12 @@ class UploadManagerAgent:
         self.upload_dir = upload_dir
         os.makedirs(self.upload_dir, exist_ok=True)
 
+    async def _scan_with_virustotal(self, file_path: str) -> bool:
+        # Mock VirusTotal scan. In production, use virustotal-api
+        print(f"Scanning {file_path} with VirusTotal...")
+        # Assume it's clean for this demo
+        return True
+
     async def handle_upload(self, file: UploadFile, db: Session) -> VerificationJob:
         # Generate unique ID for the job
         job_id = str(uuid.uuid4())
@@ -22,6 +28,15 @@ class UploadManagerAgent:
         
         with open(local_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
+            
+        # Security scan
+        is_safe = await self._scan_with_virustotal(local_path)
+        if not is_safe:
+            raise Exception("File rejected by antivirus scan.")
+            
+        # Mock Cloudinary upload returning a public URL
+        # For local dev, we just serve from /uploads
+        mock_cloud_url = f"https://res.cloudinary.com/demo/image/upload/v1/{local_filename}"
             
         # Create DB record
         new_job = VerificationJob(

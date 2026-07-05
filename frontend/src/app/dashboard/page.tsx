@@ -65,10 +65,12 @@ function DashboardContent() {
 
     if (loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white"><Activity className="w-8 h-8 animate-spin text-blue-500" /></div>;
 
+    if (!jobId) return <GlobalDashboard />;
+
     if (!data) return (
-        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-white space-y-4">
-            <h1 className="text-3xl font-bold">No Job Selected</h1>
-            <p className="text-slate-400">Please verify a document first.</p>
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 text-white space-y-4">
+            <h1 className="text-3xl font-bold">Job Not Found</h1>
+            <p className="text-slate-400">The verification job could not be loaded.</p>
         </div>
     );
 
@@ -170,5 +172,60 @@ export default function DashboardPage() {
         <Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center text-white"><Activity className="w-8 h-8 animate-spin text-blue-500" /></div>}>
             <DashboardContent />
         </Suspense>
+    );
+}
+
+function GlobalDashboard() {
+    return (
+        <div className="p-8 text-white">
+            <header className="mb-10">
+                <h1 className="text-3xl font-bold">Your digital trust overview</h1>
+            </header>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-slate-900/50 border border-white/5 rounded-2xl p-6 backdrop-blur-xl">
+                    <h2 className="text-xl font-semibold mb-6">Recent Verifications</h2>
+                    <div className="space-y-4">
+                        <RecentItem title="Internship Offer Letter" risk="High Risk" score={41} />
+                        <RecentItem title="UPI Payment Screenshot" risk="Medium Risk" score={62} />
+                        <RecentItem title="Product Screenshot" risk="Low Risk" score={88} />
+                    </div>
+                </div>
+                
+                <div className="bg-slate-900/50 border border-white/5 rounded-2xl p-6 backdrop-blur-xl flex flex-col items-center justify-center min-h-[300px]">
+                    <h2 className="text-xl font-semibold mb-6 self-start w-full">Risk Distribution</h2>
+                    <div className="w-48 h-48 rounded-full border-[16px] border-slate-800 border-t-red-500 border-r-yellow-500 border-b-emerald-500 border-l-emerald-500 animate-[spin_10s_linear_infinite]" />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function StatCard({ label, value, color = "text-white" }: { label: string, value: string, color?: string }) {
+    return (
+        <div className="bg-slate-900/50 border border-white/5 p-6 rounded-2xl backdrop-blur-xl">
+            <p className="text-sm text-slate-400 mb-2 font-medium uppercase tracking-wider">{label}</p>
+            <p className={`text-4xl font-bold ${color}`}>{value}</p>
+        </div>
+    );
+}
+
+function RecentItem({ title, risk, score }: { title: string, risk: string, score: number }) {
+    return (
+        <div className="flex items-center justify-between p-4 bg-slate-950/50 rounded-xl border border-white/5">
+            <div className="flex items-center gap-4">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${score < 50 ? 'bg-red-500/20 text-red-500' : score < 80 ? 'bg-yellow-500/20 text-yellow-500' : 'bg-emerald-500/20 text-emerald-500'}`}>
+                    <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                    <h3 className="font-semibold text-slate-200">{title}</h3>
+                    <p className={`text-sm ${score < 50 ? 'text-red-400' : score < 80 ? 'text-yellow-400' : 'text-emerald-400'}`}>{risk}</p>
+                </div>
+            </div>
+            <div className="text-right">
+                <span className={`font-mono text-xl ${score < 50 ? 'text-red-500' : score < 80 ? 'text-yellow-500' : 'text-emerald-500'}`}>{score}</span>
+                <span className="text-slate-500 text-sm ml-1">/100</span>
+            </div>
+        </div>
     );
 }
